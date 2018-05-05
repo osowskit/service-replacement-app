@@ -1,20 +1,7 @@
-<p class="lead text-left">Enter a public commit URL to check whether
-  it&rsquo;s counted as a
-  <a href="https://help.github.com/articles/why-are-my-contributions-not-showing-up-on-my-profile"
-    target="_blank">contribution</a>:
-</p>
-
 <div id="err" class="alert alert-danger"></div>
 <script id="err-template" type="text/x-handlebars-template">
   <strong>{{error_message}}</strong>
 </script>
-
-<form class="form" role="form" method="post">
-  <div class="form-group">
-    <input class="form-control span6" name="url"
-      placeholder="https://github.com/:user/:repo/commit/:sha" autofocus>
-  </div>
-</form>
 
 <div id="waiting">
   <p class="lead text-muted text-center">
@@ -24,89 +11,50 @@
 
 <div id="results"></div>
 <script id="results-template" type="text/x-handlebars-template">
-<p id="results-lead" class="lead">Your <a href="{{commit_url}}" target="_blank">commit</a>
-  <span class="bg-{{#if contribution}}success{{else}}danger{{/if}}">
-  {{#if contribution}}should be{{else}}will not be{{/if}}
-  counted</span> as a contribution! Check the details below:
-</p>
-
-<div class="panel panel-{{#if and_criteria_met}}success{{else}}danger{{/if}}">
-  <div class="panel-heading">
-    <h4>All of the following rules need to be true</h4>
-  </div>
-  <table class="table table-condensed table-responsive">
-    <tr class="{{#if and_criteria.commit_in_valid_branch}}success{{else}}danger{{/if}}">
-      <td><span class="octicon octicon-{{#if and_criteria.commit_in_valid_branch}}check{{else}}x{{/if}}"></span></td>
-      <td>Is the commit in the <em>{{and_criteria.default_branch}}</em>
-        {{#unless default_branch_is_gh_pages}}or <em>gh-pages</em>{{/unless}} branch?
-      </td>
-    </tr>
-    <tr class="{{#if and_criteria.repo_not_a_fork}}success{{else}}danger{{/if}}">
-      <td><span class="octicon octicon-{{#if and_criteria.repo_not_a_fork}}check{{else}}x{{/if}}"></span></td>
-      <td>Is the repository containing the commit <em>not</em> a fork?</td>
-    </tr>
-    <tr class="{{#if and_criteria.commit_email_linked_to_user}}success{{else}}danger{{/if}}">
-      <td><span class="octicon octicon-{{#if and_criteria.commit_email_linked_to_user}}check{{else}}x{{/if}}"></span></td>
-      <td>Have you added the email used to author the commit ({{and_criteria.commit_email}}) to your GitHub account?</td>
-    </tr>
-    <tr class="{{#if and_criteria.commit_email_is_not_generic}}success{{else}}danger{{/if}}">
-      <td><span class="octicon octicon-{{#if and_criteria.commit_email_is_not_generic}}check{{else}}x{{/if}}"></span></td>
-      <td>Is the email used to author the commit ({{and_criteria.commit_email}}) a non-generic email?</td>
-    </tr>
-  </table>
-</div>
-
-<div class="panel panel-{{#if or_criteria_met}}success{{else}}danger{{/if}}">
-  <div class="panel-heading">
-    <h4>At least one of the following rules needs to be true</h4>
-  </div>
-  <table class="table table-condensed table-responsive">
-    <tr class="{{#if or_criteria.user_has_starred_repo}}success{{else}}danger{{/if}}">
-      <td><span class="octicon octicon-{{#if or_criteria.user_has_starred_repo}}check{{else}}x{{/if}}"></span></td>
-      <td>Have you starred the repository containing the commit?</td>
-    </tr>
-    <tr class="{{#if or_criteria.user_can_push_to_repo}}success{{else}}danger{{/if}}">
-      <td><span class="octicon octicon-{{#if or_criteria.user_can_push_to_repo}}check{{else}}x{{/if}}"></span></td>
-      <td>Do you have push access to the repository?</td>
-    </tr>
-    <tr class="{{#if or_criteria.user_is_repo_org_member}}success{{else}}danger{{/if}}">
-      <td><span class="octicon octicon-{{#if or_criteria.user_is_repo_org_member}}check{{else}}x{{/if}}"></span></td>
-      <td>Are you a member of the organization that owns the repository?</td>
-    </tr>
-    <tr class="{{#if or_criteria.user_has_fork_of_repo}}success{{else}}danger{{/if}}">
-      <td><span class="octicon octicon-{{#if or_criteria.user_has_fork_of_repo}}check{{else}}x{{/if}}"></span>
-      <td>Do you own a fork of the repository containing the commit?</td>
-    </tr>
-    <tr class="{{#if or_criteria.user_has_opened_issue_or_pr_in_repo}}success{{else}}danger{{/if}}">
-      <td><span class="octicon octicon-{{#if or_criteria.user_has_opened_issue_or_pr_in_repo}}check{{else}}x{{/if}}"></span>
-        <td>Have you opened an issue or pull request in the repository containing the commit?</td>
-    </tr>
-  </table>
-</div>
+  
+  <p id="results-lead" class="lead">
+    {{#each repo_list}}
+    <ul class="list-group"><span class="octicon octicon-repo"></span> {{full_name}} 
+      {{#each hooks}}
+      <li class="list-group-item">
+        <a href="https://github.com/github/github-services/tree/master/docs/{{hook_name}}">{{ hook_name }}</a>
+      </li>
+      {{/each}}
+    </ul>
+    {{/each}}
+  </p>
 </script>
 
-<% if !recent_commits.empty? %>
+
+<% if !installations.empty? %>
+<div id="select-installation">
+  <p class="lead">Select one of your accounts:</p>
+    <ul class="list-group">
+      <% for i in installations %>
+        <%= erb :installations, :locals => { :installation => i, :hidden => false} %>
+      <% end %>
+    </ul>
+</div>
+<% end %>
+
+<% if installation_selected %>
 <div id="recent-commits">
-  <p class="lead">Or, check one of your recent public commits:</p>
-  <ul class="list-group">
-    <% for c in recent_commits.take(5) %>
-      <%= erb :commit, :locals => { :commit => c, :hidden => false } %>
-    <% end %>
-    <% for c in recent_commits.drop(5) %>
-      <%= erb :commit, :locals => { :commit => c, :hidden => true } %>
-    <% end %>
-    <% if recent_commits.length > 5 %>
-    <li class="list-group-item">
-      <a class="js-show-more-commits" href="#">Show more commits&#8230;</a>
-    </li>
-    <% end %>
-  </ul>
+  <p class="lead">Don't see your account listed:</p>
+  
+  <div id="get-started" class="text-center">
+    <a href="/install" class="btn btn-primary btn-lg">More Accounts</a>
+  </div>
+  
 </div>
 <% end %>
 
 <footer class="text-center">
-  <a href="/how">
+  <p><a href="/how">
     <span class="octicon octicon-question"></span>
     How does this work?
+  </a>
+  <p><a href="/reset">
+    <span class="octicon octicon-caution"></span>
+    Want to start over?
   </a>
 </footer>

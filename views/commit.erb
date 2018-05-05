@@ -3,6 +3,6 @@
   <button type="button" class="pull-right btn btn-default js-check-commit" data-commit-url="<%= commit[:html_url] %>">Check</button>
   <h4 class="list-group-item-heading"><%= commit[:message] %></h4>
   <p class="list-group-item-text commit-shortcut">
-    <a href="<%= commit[:html_url] %>" title="<%= commit[:message] %>" target="_blank"><%= commit[:shortcut] %></a>
+    <a href="<%= commit[:html_url] %>" title="<%= commit[:full_name] %>" target="_blank"><%= commit[:full_name] %></a>
   </p>
 </li>

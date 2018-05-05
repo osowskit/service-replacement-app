@@ -6,7 +6,7 @@
     if ($("#err-template").length) {
       renderError = Handlebars.compile($("#err-template").html());
     }
-    if ($("#err-template").length) {
+    if ($("#results-template").length) {
       renderResults = Handlebars.compile($("#results-template").html());
     }
   }
@@ -15,7 +15,9 @@
     $(".form").submit(function() { return false; });
     $(".form input").keypress(function(e) {
       if (e.which == 13) { // Capture when "Enter" is pressed
-        check();
+        select_installation();
+        alert("got here")
+        //check();
       }
     });
     $(".js-check-commit").click(function(e) {
@@ -24,10 +26,44 @@
       check();
       return false;
     });
+    $(".js-select-installation").click(function(e) {
+      //$(".js-select-installation").attr("disabled", "");
+      //$(".form input").val($(this).attr("data-installation-id"));
+      select_installation($(this).attr("data-installation-id"));
+      return false;
+    });
     $(".js-show-more-commits").click(function(e) {
       $("#recent-commits ul li.hide").removeClass("hide");
       $(this).closest("li").remove();
       return false;
+    });
+  }
+
+  function select_installation(installation_id) {
+    $(".alert").hide();
+    $("#results").hide();
+    $("input").attr("disabled", "");
+    $("#waiting").show();
+    $.ajax({
+      type: "POST", url: "/", data: "installation_id=" + installation_id, dataType: "json",
+      success: function(data) {
+        if (data.error_message) {
+          $("#err").html(renderError(data)).show();
+        } else {
+          data.installation_id = installation_id;
+          $("#results").html(renderResults(data)).show();
+        }
+      },
+      error: function(xhr, status, error) {
+        var data = { error_message: "Sorry, something went horribly wrong." };
+        $("#err").html(renderError(data)).show();
+        console.log(error)
+      },
+      complete: function() {
+        $("#waiting").hide();
+        $("input").removeAttr("disabled");
+        $(".js-check-commit").removeAttr("disabled");
+      }
     });
   }
 
