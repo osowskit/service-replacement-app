@@ -13,15 +13,19 @@
 <script id="results-template" type="text/x-handlebars-template">
   
   <p id="results-lead" class="lead">
-    {{#each repo_list}}
-    <ul class="list-group"><span class="octicon octicon-repo"></span> {{full_name}} 
-      {{#each hooks}}
-      <li class="list-group-item">
-        <a href="https://github.com/github/github-services/tree/master/docs/{{hook_name}}">{{ hook_name }}</a>
-      </li>
+    {{#if repo_list.count > 0}}
+      {{#each repo_list}}
+      <ul class="list-group"><span class="octicon octicon-repo"></span> {{full_name}} 
+        {{#each hooks}}
+        <li class="list-group-item">
+          <a href="https://github.com/github/github-services/tree/master/docs/{{hook_name}}">{{ hook_name }}</a>
+        </li>
+        {{/each}}
+      </ul>
       {{/each}}
-    </ul>
-    {{/each}}
+    {{#else}}
+      No GitHub Services found on this account. You may need to grant access to more repositories, have an account Owner visit this page, or install the application on another account.
+    {{/if}}
   </p>
 </script>
 
