@@ -5,6 +5,8 @@ gem "sinatra-contrib",      "~> 2.0"
 gem "octokit",              "~> 4.7"
 gem 'dotenv'
 gem "jwt"
+gem 'rails'
+gem "json",        "~> 1.8"
 
 group :development do
   gem "bundler", "~> 1.15"
