@@ -158,12 +158,12 @@ end
 # Serve the main page.
 get "/" do
   if !authenticated?
-    erb :how, :locals => { :authenticated => authenticated? }
+    return erb :how, :locals => { :authenticated => authenticated? }
   end
   check_access_token
   check_installations
   if !installed?  
-    erb :install, :locals => { :authenticated => authenticated?, :installed => installed?}
+    return erb :install, :locals => { :authenticated => authenticated?, :installed => installed?}
   else
     erb :index, :locals => {
       :authenticated => authenticated?, :recent_commits => recent_commits, :installations => installations, :installation_selected => installation_selected?}
