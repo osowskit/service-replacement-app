@@ -4,7 +4,7 @@ On April 25, 2018, Github announced it plans on [shutting down GitHub Services](
 
 This app lets you authenticate with GitHub and check whether any of your repositories have a GitHub Service installed.
 
-![app](https://cloud.githubusercontent.com/assets/65057/6320756/b32c9328-bae6-11e4-9ba1-48ced9a5fb6e.png)
+![app](https://user-images.githubusercontent.com/768821/39883183-e85985b0-543a-11e8-923e-704e84cf8ea2.png)
 
 Forked from a project created by [@izuzak][izuzak] and [@jdennes][jdennes] at the [Hamburg Hackathon][hamburg-hackathon], June 2014. :bow:
 
