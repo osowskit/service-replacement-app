@@ -50,7 +50,7 @@ def check_installations
   begin
     @client = Octokit::Client.new :access_token => @access_token
     response = @client.find_user_installations
-    
+
     installation_count = response.total_count
     if installation_count > 0
       response.installations.each do |installation|
@@ -119,7 +119,7 @@ def installation_selected?
   session[:selected_installation]
 end
 
-get "/reset" do 
+get "/reset" do
   session[:selected_installation] = nil
   session[:installation_list] = nil
   session[:access_token] = nil
@@ -133,9 +133,9 @@ end
 
 # Get the user's recent commits from their public activity feed.
 def recent_commits
-  
+
   return "" if !installation_selected?
-  
+
   installation_id = session[:selected_installation]
   # installation_token = get_app_token(installation_id)
 
@@ -151,7 +151,7 @@ get "/auth" do
   authenticate!
 end
 
-get "/install" do 
+get "/install" do
   install!
 end
 
@@ -162,7 +162,7 @@ get "/" do
   end
   check_access_token
   check_installations
-  if !installed?  
+  if !installed?
     return erb :install, :locals => { :authenticated => authenticated?, :installed => installed?}
   else
     erb :index, :locals => {
@@ -173,14 +173,18 @@ end
 # Return a all the Service hooks installed on a Repository
 def get_hook_list(installation_id, repository_name, local_client)
   hook_list = Array.new
-  
-  results = local_client.hooks(repository_name, :accept => "application/vnd.github.machine-man-preview+json")
 
-  # Search for all service hooks on a repository
-  results.each do |hook|
-    if hook.name != 'web'
-      hook_list.push({id: hook.id, hook_name: hook.name})
+  begin
+    results = local_client.hooks(repository_name, :accept => "application/vnd.github.machine-man-preview+json")
+
+    # Search for all service hooks on a repository
+    results.each do |hook|
+      if hook.name != 'web'
+        hook_list.push({id: hook.id, hook_name: hook.name})
+      end
     end
+  rescue => err
+    puts err
   end
 
   hook_list
@@ -191,29 +195,30 @@ end
 post "/" do
   authenticate! if !authenticated?
   check_access_token
-  
+
   install if !installed?
-  
+
   # Select an Installation
   installation_id = params[:installation_id].to_i
   begin
     result = {repo_list: []}
-    
+
     response = @client.find_installation_repositories_for_user(installation_id)
     app_token = get_app_token(installation_id)
     @app_client = Octokit::Client.new(:access_token => app_token)
 
     if response.total_count > 0
       response.repositories.each do |repo|
+        puts "getting hooks for #{repo["full_name"]}"
         hook_list = get_hook_list(params[:installation_id], repo["full_name"], @app_client)
-        
+
         if !hook_list.nil? && hook_list.count > 0
           return_data = {full_name: repo["full_name"], installation_id: installation_id, hooks: hook_list}
           result[:repo_list].push(return_data)
         end
       end
     end
-    
+
     result[:commit_url] = params[:installation_id]
   rescue => err
     return json :error_message => err
