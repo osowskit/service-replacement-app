@@ -23,6 +23,11 @@ SESSION_SECRET = ENV.fetch("SESSION_SECRET")
 enable :sessions
 set :session_secret, SESSION_SECRET
 
+Octokit.configure do |c|
+  c.default_media_type = "application/vnd.github.machine-man-preview+json"
+  c.auto_paginate = true
+  c.user_agent = "#{Octokit.user_agent}: service-deprecation-app"
+end
 
 # Ask the user to authorise the app.
 def authenticate!
@@ -203,13 +208,14 @@ post "/" do
   begin
     result = {repo_list: []}
 
+    @client.auto_paginate = true
     response = @client.find_installation_repositories_for_user(installation_id)
     app_token = get_app_token(installation_id)
     @app_client = Octokit::Client.new(:access_token => app_token)
+    @app_client.auto_paginate = true
 
     if response.total_count > 0
       response.repositories.each do |repo|
-        puts "getting hooks for #{repo["full_name"]}"
         hook_list = get_hook_list(params[:installation_id], repo["full_name"], @app_client)
 
         if !hook_list.nil? && hook_list.count > 0
