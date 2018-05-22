@@ -7,6 +7,7 @@ require "jwt"
 require 'yaml'
 
 Dotenv.load
+$stdout.sync = true
 
 CLIENT_ID = ENV.fetch("GITHUB_CLIENT_ID")
 CLIENT_SECRET = ENV["GITHUB_CLIENT_SECRET"]
