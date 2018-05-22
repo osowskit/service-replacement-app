@@ -20,7 +20,7 @@
       <li class="list-group-item">
         <a href="https://github.com/github/github-services/tree/master/docs/{{hook_name}}">{{ hook_name }}</a> 
           {{if service_replacement_list[hook_name] }}<a href="{{service_replacement_list[hook_name]}}" class="btn btn-primary btn-lg">Migrate</a>
-          {{end}}
+          {{/if}}
       </li>
       {{/each}}
     </ul>
