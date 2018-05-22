@@ -13,14 +13,13 @@
 <script id="results-template" type="text/x-handlebars-template">
   
   <p id="results-lead" class="lead">
-    Hello {{repo_list.count}}
     {{#each repo_list}}
     <ul class="list-group"><span class="octicon octicon-repo"></span> {{full_name}} 
       {{#each hooks}}
-      <li class="list-group-item">
+      <li class="list-group-item clearfix">
         <a href="https://github.com/github/github-services/tree/master/docs/{{hook_name}}">{{ hook_name }}</a> 
           {{#if replacement }}
-            <a href="{{replacement}}" class="btn btn-default">Migrate</a>
+            <a href="{{replacement}}" target="_blank" class="btn btn-default pull-right">Migrate</a>
           {{/if}}
       </li>
       {{/each}}
