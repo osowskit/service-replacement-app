@@ -249,6 +249,10 @@ get "/how" do
   erb :how, :locals => { :authenticated => authenticated? }
 end
 
+get "/debug-x" do 
+  puts session[:access_token]
+end
+
 # Ping endpoing for uptime check.
 get "/ping" do
   "pong"
