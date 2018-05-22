@@ -4,6 +4,8 @@ require "octokit"
 require "active_support/core_ext/numeric/time"
 require 'dotenv'
 require "jwt"
+require 'yaml'
+
 Dotenv.load
 
 CLIENT_ID = ENV.fetch("GITHUB_CLIENT_ID")
@@ -19,6 +21,10 @@ end
 GITHUB_APP_ID = ENV.fetch("GITHUB_APP_ID")
 GITHUB_APP_URL = ENV.fetch("GITHUB_APP_URL")
 SESSION_SECRET = ENV.fetch("SESSION_SECRET")
+
+# Load service replacement
+yml = File.open('service-replacement.yaml')
+@service_replacement_list = YAML.load(yml)
 
 enable :sessions
 set :session_secret, SESSION_SECRET
@@ -112,10 +118,6 @@ def check_access_token
   end
 end
 
-def repository_hooks
-
-end
-
 def select_installation!(installation_id)
   session[:selected_installation] = installation_id
 end
@@ -206,7 +208,10 @@ post "/" do
   # Select an Installation
   installation_id = params[:installation_id].to_i
   begin
-    result = {repo_list: []}
+    result = {
+      repo_list: [],
+      service_replacement_list: @service_replacement_list
+    }
 
     @client.auto_paginate = true
     response = @client.find_installation_repositories_for_user(installation_id)
