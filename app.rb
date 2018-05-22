@@ -187,7 +187,8 @@ def get_hook_list(installation_id, repository_name, local_client)
     # Search for all service hooks on a repository
     results.each do |hook|
       if hook.name != 'web'
-        hook_list.push({id: hook.id, hook_name: hook.name})
+        replacement = service_replacement_list[hook.name]
+        hook_list.push({id: hook.id, hook_name: hook.name, replacement: replacement})
       end
     end
   rescue => err
@@ -208,10 +209,7 @@ post "/" do
   # Select an Installation
   installation_id = params[:installation_id].to_i
   begin
-    result = {
-      repo_list: [],
-      service_replacement_list: @service_replacement_list
-    }
+    result = {repo_list: []}
 
     @client.auto_paginate = true
     response = @client.find_installation_repositories_for_user(installation_id)
