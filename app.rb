@@ -187,7 +187,7 @@ def get_hook_list(installation_id, repository_name, local_client)
     # Search for all service hooks on a repository
     results.each do |hook|
       if hook.name != 'web'
-        replacement = service_replacement_list[hook.name]
+        replacement = @service_replacement_list[hook.name]
         hook_list.push({id: hook.id, hook_name: hook.name, replacement: replacement})
       end
     end
