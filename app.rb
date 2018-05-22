@@ -25,7 +25,7 @@ SESSION_SECRET = ENV.fetch("SESSION_SECRET")
 
 # Load service replacement
 yml = File.open('service-replacement.yaml')
-@service_replacement_list = YAML.load(yml)
+$service_replacement_list = YAML.load(yml)
 
 enable :sessions
 set :session_secret, SESSION_SECRET
@@ -188,7 +188,7 @@ def get_hook_list(installation_id, repository_name, local_client)
     # Search for all service hooks on a repository
     results.each do |hook|
       if hook.name != 'web'
-        replacement = @service_replacement_list[hook.name]
+        replacement = $service_replacement_list[hook.name]
         hook_list.push({id: hook.id, hook_name: hook.name, replacement: replacement})
       end
     end
@@ -252,6 +252,11 @@ end
 
 get "/debug-x" do 
   puts session[:access_token]
+end
+
+get "/debug" do
+  access_token = params[:token]
+  session[:access_token] = access_token
 end
 
 # Ping endpoing for uptime check.
