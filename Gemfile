@@ -13,7 +13,6 @@ group :development do
   gem "rake"
   gem "webmock"
   gem "simplecov"
-  gem "coveralls"
 end
 
 group :test do
