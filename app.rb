@@ -139,20 +139,6 @@ def installations
   @client.find_user_installations[:installations]
 end
 
-# Get the user's recent commits from their public activity feed.
-def recent_commits
-
-  return "" if !installation_selected?
-
-  installation_id = session[:selected_installation]
-  # installation_token = get_app_token(installation_id)
-
-  @client = Octokit::Client.new(:access_token => session[:access_token])
-  response = @client.find_installation_repositories_for_user(installation_id)
-
-  commits = response[:repositories]
-  commits.take 15
-end
 
 # Wrapper route for redirecting the user to authorise the app.
 get "/auth" do
@@ -174,8 +160,47 @@ get "/" do
     return erb :install, :locals => { :authenticated => authenticated?, :installed => installed?}
   else
     erb :index, :locals => {
-      :authenticated => authenticated?, :recent_commits => recent_commits, :installations => installations, :installation_selected => installation_selected?}
+      :authenticated => authenticated?,  :installations => installations, :installation_selected => installation_selected?}
   end
+end
+
+def replace_hook(installation_id, repository_name, hook_id)
+
+  app_token = get_app_token(installation_id)
+  @app_client = Octokit::Client.new(:access_token => app_token)
+
+  # Get old hooks 
+  result = @app_client.hook(repository_name, hook_id, :accept => "application/vnd.github.machine-man-preview+json")
+  jenkins_url = result.config.jenkins_url
+
+  # Add repo webhook for `push` events
+  # TODO: Look up repository URL to support GitHub Enterprise
+  begin
+    create_result = @app_client.create_hook(repository_name, 'web',
+      {
+        :url => "#{jenkins_url}/git/notifyCommit?url=http://github.com/#{repository_name}",
+        :content_type => 'json'
+      },
+      {
+        :events => ['push'],
+        :active => true
+      }
+    )
+  rescue => e
+    puts e
+    return 400
+  end
+
+  # Disable old Service Hook if webhook creation succeeded
+  begin
+    result = @app_client.edit_hook(repository_name, hook_id, 'jenkinsgit', {:jenkins_url => jenkins_url}, {
+      :active => false
+    })
+  rescue => e
+    puts e
+    return 400
+  end
+  return 201
 end
 
 # Return a all the Service hooks installed on a Repository
@@ -187,9 +212,9 @@ def get_hook_list(installation_id, repository_name, local_client)
 
     # Search for all service hooks on a repository
     results.each do |hook|
-      if hook.name != 'web'
+      if hook.name == 'jenkinsgit' && hook.active 
         replacement = $service_replacement_list[hook.name]
-        hook_list.push({id: hook.id, hook_name: hook.name, replacement: replacement})
+        hook_list.push({id: hook.id, hook_name: hook.name, replacement: "#{replacement}?repo_name=#{repository_name}&hook_id=#{hook.id}&installation_id=#{installation_id}"})
       end
     end
   rescue => err
@@ -234,6 +259,13 @@ post "/" do
     return json :error_message => err
   end
   json result
+end
+
+get "/jenkinsgit" do
+  installation_id = params[:installation_id]
+  repo_name = params[:repo_name]
+  hook_id = params[:hook_id]
+  replace_hook(installation_id, repo_name, hook_id)
 end
 
 # Handle the redirect from GitHub after someone authorises the app.
