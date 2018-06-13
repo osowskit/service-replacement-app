@@ -1,8 +1,8 @@
-# GitHub Contribution Checker App
+# GitHub Services Migration App - Jenkins Edition.
 
-On April 25, 2018, Github announced it plans on [shutting down GitHub Services](https://developer.github.com/v3/guides/replacing-github-services/). This application can help identify how and where your Accounts are [using GitHub Services](https://developer.github.com/v3/guides/replacing-github-services/#migrating-with-our-help).
+On April 25, 2018, Github announced it plans on [shutting down GitHub Services](https://developer.github.com/v3/guides/replacing-github-services/). This application can help identify how and where your Accounts are [using GitHub Services](https://developer.github.com/v3/guides/replacing-github-services/#migrating-with-our-help) for Jenkins.
 
-This app lets you authenticate with GitHub and check whether any of your repositories have a GitHub Service installed.
+This app lets you authenticate with GitHub and check whether any of your repositories have a Jenkins GitHub Service installed.
 
 ![app](https://cloud.githubusercontent.com/assets/65057/6320756/b32c9328-bae6-11e4-9ba1-48ced9a5fb6e.png)
 
