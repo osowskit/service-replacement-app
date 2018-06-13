@@ -167,6 +167,7 @@ end
 def replace_hook(installation_id, repository_name, hook_id)
 
   app_token = get_app_token(installation_id)
+  return 404 unless app_token != ''
   @app_client = Octokit::Client.new(:access_token => app_token)
 
   # Get old hooks 
@@ -214,7 +215,12 @@ def get_hook_list(installation_id, repository_name, local_client)
     results.each do |hook|
       if hook.name == 'jenkinsgit' && hook.active 
         replacement = $service_replacement_list[hook.name]
-        hook_list.push({id: hook.id, hook_name: hook.name, replacement: "#{replacement}?repo_name=#{repository_name}&hook_id=#{hook.id}&installation_id=#{installation_id}"})
+        hook_list.push({id: hook.id, hook_name: hook.name, replacement: "#{replacement['url']}?repo_name=#{repository_name}&hook_id=#{hook.id}&installation_id=#{installation_id}", message: replacement['message']})
+      elsif hook.name == 'jenkins' && hook.active        
+        replacement = $service_replacement_list[hook.name]
+        hook_list.push({id: hook.id, hook_name: hook.name, replacement: "#{replacement['url']}", message: replacement['message']})
+      elsif hook.name != 'web'
+        puts hook.name
       end
     end
   rescue => err
@@ -240,6 +246,7 @@ post "/" do
     @client.auto_paginate = true
     response = @client.find_installation_repositories_for_user(installation_id)
     app_token = get_app_token(installation_id)
+    return 404 unless app_token != ''
     @app_client = Octokit::Client.new(:access_token => app_token)
     @app_client.auto_paginate = true
 

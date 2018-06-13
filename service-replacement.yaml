@@ -11,3 +11,9 @@ huboard: "https://github.com/works-with?utf8=%E2%9C%93&query=huboard"
 sprintly: "https://github.com/works-with?utf8=%E2%9C%93&query=sprintly"
 youtrack: "https://github.com/works-with?utf8=%E2%9C%93&query=youtrack"
 trello: "https://github.com/works-with?utf8=%E2%9C%93&query=trello"
+jenkinsgit: 
+  url: "/jenkinsgit"
+  message: "Enabling SSL on Webhooks may prevent GitHub from delivering webhooks."
+jenkins:
+  url: "/jenkinsgit"
+  message: "Enabling SSL on Webhooks may prevent GitHub from delivering webhooks."
