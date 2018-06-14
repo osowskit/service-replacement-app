@@ -172,14 +172,22 @@ def replace_hook(installation_id, repository_name, hook_id)
 
   # Get old hooks 
   result = @app_client.hook(repository_name, hook_id, :accept => "application/vnd.github.machine-man-preview+json")
-  jenkins_url = result.config.jenkins_url
+  params = ""
+  if result.name == "jenkinsgit"
+    jenkins_url = result.config.jenkins_url
+    params = "/git/notifyCommit?url=http://github.com/#{repository_name}"
+    hook_data = {:jenkins_url => jenkins_url}
+  else
+    jenkins_url = result.config.jenkins_hook_url
+    hook_data = {:jenkins_hook_url => jenkins_url}
+  end
 
   # Add repo webhook for `push` events
   # TODO: Look up repository URL to support GitHub Enterprise
   begin
     create_result = @app_client.create_hook(repository_name, 'web',
       {
-        :url => "#{jenkins_url}/git/notifyCommit?url=http://github.com/#{repository_name}",
+        :url => "#{jenkins_url}#{params}",
         :content_type => 'json'
       },
       {
@@ -194,7 +202,7 @@ def replace_hook(installation_id, repository_name, hook_id)
 
   # Disable old Service Hook if webhook creation succeeded
   begin
-    result = @app_client.edit_hook(repository_name, hook_id, 'jenkinsgit', {:jenkins_url => jenkins_url}, {
+    result = @app_client.edit_hook(repository_name, hook_id, 'jenkinsgit', hook_data, {
       :active => false
     })
   rescue => e
