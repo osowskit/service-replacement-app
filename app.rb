@@ -175,6 +175,7 @@ def replace_hook(installation_id, repository_name, hook_id)
   params = ""
   if result.name == "jenkinsgit"
     jenkins_url = result.config.jenkins_url
+    # TODO: Look up repository URL to support GitHub Enterprise
     params = "/git/notifyCommit?url=http://github.com/#{repository_name}"
     hook_data = {:jenkins_url => jenkins_url}
   else
@@ -183,7 +184,6 @@ def replace_hook(installation_id, repository_name, hook_id)
   end
 
   # Add repo webhook for `push` events
-  # TODO: Look up repository URL to support GitHub Enterprise
   begin
     create_result = @app_client.create_hook(repository_name, 'web',
       {
