@@ -183,6 +183,7 @@ def replace_hook(installation_id, repository_name, hook_id)
     hook_data = {:jenkins_hook_url => jenkins_url}
   elsif result.name == "docker"
     url = "https://registry.hub.docker.com/hooks/github"
+    hook_data = {}
   end
 
   # Add repo webhook for `push` events
