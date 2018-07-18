@@ -174,20 +174,22 @@ def replace_hook(installation_id, repository_name, hook_id)
   result = @app_client.hook(repository_name, hook_id, :accept => "application/vnd.github.machine-man-preview+json")
   params = ""
   if result.name == "jenkinsgit"
-    jenkins_url = result.config.jenkins_url
+    url = result.config.jenkins_url
     # TODO: Look up repository URL to support GitHub Enterprise
     params = "/git/notifyCommit?url=http://github.com/#{repository_name}"
     hook_data = {:jenkins_url => jenkins_url}
-  else
-    jenkins_url = result.config.jenkins_hook_url
+  elsif result.name == "jenkins"
+    url = result.config.jenkins_hook_url
     hook_data = {:jenkins_hook_url => jenkins_url}
+  elsif result.name == "docker"
+    url = "https://registry.hub.docker.com/hooks/github"
   end
 
   # Add repo webhook for `push` events
   begin
     create_result = @app_client.create_hook(repository_name, 'web',
       {
-        :url => "#{jenkins_url}#{params}",
+        :url => "#{url}#{params}",
         :content_type => 'json'
       },
       {
@@ -228,7 +230,8 @@ def get_hook_list(installation_id, repository_name, local_client)
         replacement = $service_replacement_list[hook.name]
         hook_list.push({id: hook.id, hook_name: hook.name, replacement: "#{replacement['url']}?repo_name=#{repository_name}&hook_id=#{hook.id}&installation_id=#{installation_id}", message: replacement['message']})
       elsif hook.name == 'docker' && hook.active
-        puts "found one!"
+        replacement = $service_replacement_list[hook.name]
+        hook_list.push({id: hook.id, hook_name: hook.name, replacement: "#{replacement['url']}", message: replacement['message']})
       elsif hook.name != 'web'
         puts hook.name
       end
@@ -278,7 +281,14 @@ post "/" do
   json result
 end
 
-get "/jenkinsgit" do
+get "/replace_jenkins" do
+  installation_id = params[:installation_id]
+  repo_name = params[:repo_name]
+  hook_id = params[:hook_id]
+  replace_hook(installation_id, repo_name, hook_id)
+end
+
+get "/replace_docker" do
   installation_id = params[:installation_id]
   repo_name = params[:repo_name]
   hook_id = params[:hook_id]
