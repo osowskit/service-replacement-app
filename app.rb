@@ -173,6 +173,7 @@ def replace_hook(installation_id, repository_name, hook_id)
   # Get old hooks 
   result = @app_client.hook(repository_name, hook_id, :accept => "application/vnd.github.machine-man-preview+json")
   params = ""
+  events = ['push']
   if result.name == "jenkinsgit"
     url = result.config.jenkins_url
     # TODO: Look up repository URL to support GitHub Enterprise
@@ -184,6 +185,13 @@ def replace_hook(installation_id, repository_name, hook_id)
   elsif result.name == "docker"
     url = "https://registry.hub.docker.com/hooks/github"
     hook_data = {}
+  elsif result.name == "codereviewhub"
+    url = "https://www.codereviewhub.com"
+    hook_data = {}
+    events = ['push', "pull_request", "issue_comment", "commit_comment", "pull_request_review_comment"]
+  else
+    puts "unknown error"
+    return nil
   end
 
   # Add repo webhook for `push` events
@@ -194,7 +202,7 @@ def replace_hook(installation_id, repository_name, hook_id)
         :content_type => 'json'
       },
       {
-        :events => ['push'],
+        :events => events,
         :active => true
       }
     )
@@ -287,6 +295,17 @@ get "/replace_jenkins" do
   repo_name = params[:repo_name]
   hook_id = params[:hook_id]
   replace_hook(installation_id, repo_name, hook_id)
+end
+
+# Remove and generalize
+get "/replace_codereviewhub" do
+  installation_id = params[:installation_id]
+  repo_name = params[:repo_name]
+  hook_id = params[:hook_id]
+  replace_hook(installation_id, repo_name, hook_id)
+
+  # Success
+  redirect "/"  
 end
 
 get "/replace_docker" do

@@ -17,8 +17,11 @@ jenkinsgit:
 jenkins:
   url: "/replace_jenkins"
   message: "Enabling SSL on Webhooks may prevent GitHub from delivering webhooks."
-
 docker:
   url: "/replace_docker"
   message: ""
   webhook_url: "https://registry.hub.docker.com/hooks/github"
+codereviewhub:
+  url: "/replace_codereviewhub"
+  message: ""
+  webhook_url: "https://www.codereviewhub.com"
