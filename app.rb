@@ -294,6 +294,9 @@ get "/replace_docker" do
   repo_name = params[:repo_name]
   hook_id = params[:hook_id]
   replace_hook(installation_id, repo_name, hook_id)
+  
+  # Success
+  redirect "/"
 end
 
 # Handle the redirect from GitHub after someone authorises the app.
