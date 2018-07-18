@@ -232,7 +232,7 @@ def get_hook_list(installation_id, repository_name, local_client)
         hook_list.push({id: hook.id, hook_name: hook.name, replacement: "#{replacement['url']}?repo_name=#{repository_name}&hook_id=#{hook.id}&installation_id=#{installation_id}", message: replacement['message']})
       elsif hook.name == 'docker' && hook.active
         replacement = $service_replacement_list[hook.name]
-        hook_list.push({id: hook.id, hook_name: hook.name, replacement: "#{replacement['url']}", message: replacement['message']})
+        hook_list.push({id: hook.id, hook_name: hook.name, replacement: "#{replacement['url']}?repo_name=#{repository_name}&hook_id=#{hook.id}&installation_id=#{installation_id}", message: replacement['message']})
       elsif hook.name != 'web'
         puts hook.name
       end
